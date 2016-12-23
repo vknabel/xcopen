@@ -40,12 +40,15 @@ fileprivate func open(glob: String) -> () -> Result<Process, OpenError> {
 
 let openWork = open(glob: "*.xcworkspace")
 let openProject = open(glob: "*.xcodeproj")
+let openCordovaWork = open(glob: "platforms/ios/*.xcworkspace")
+let openCordovaProject = open(glob: "platforms/ios/*.xcodeproj")
 func openPackage() -> Result<Process, OpenError> {
     let package = Path.current + "Package.swift"
     if package.exists {
-        return run("swift", "package", "generate-xcodeproj").flatMap { _ in
-            openProject()
-        }
+        return run("swift", "package", "generate-xcodeproj")
+            .flatMap({ _ in openProject() })
+            .flatMap({ _ in openCordovaWork() })
+            .flatMap({ _ in openCordovaProject() })
     } else {
         return .failure(.fileNotFound("Package.swift"))
     }
