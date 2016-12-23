@@ -9,14 +9,16 @@
 import Foundation
 import Commandant
 import Result
+import PathKit
 
 struct OpenPackageCommand: CommandProtocol {
-    typealias Options = NoOptions<OpenError>
+    typealias Options = PathOptions
     
     var verb: String = "pm"
     var function: String = "Generates a new project from Package.swift and opens it."
     
-    func run(_ options: NoOptions<OpenError>) -> Result<(), OpenError> {
+    func run(_ options: Options) -> Result<(), OpenError> {
+        Path.current = options.path
         return openPackage().map({ _ in () })
     }
 }

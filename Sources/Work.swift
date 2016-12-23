@@ -9,14 +9,16 @@
 import Foundation
 import Commandant
 import Result
+import PathKit
 
 struct OpenWorkCommand: CommandProtocol {
-    typealias Options = NoOptions<OpenError>
+    typealias Options = PathOptions
     
     var verb: String = "work"
     var function: String = "Opens the Xcode workspace."
     
-    func run(_ options: NoOptions<OpenError>) -> Result<(), OpenError> {
+    func run(_ options: Options) -> Result<(), OpenError> {
+        Path.current = options.path
         return openWork().map({ _ in () })
     }
 }

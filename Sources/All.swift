@@ -8,6 +8,7 @@
 
 import Foundation
 import Commandant
+import PathKit
 import Result
 
 struct OpenAllCommand: CommandProtocol {
@@ -16,7 +17,8 @@ struct OpenAllCommand: CommandProtocol {
     var verb: String = "all"
     var function: String = "Opens the Xcode workspace or project. Tries to generate a project for Swift Package Manager manifests."
     
-    func run(_ options: OpenAllOptions) -> Result<(), OpenError> {
+    func run(_ options: Options) -> Result<(), OpenError> {
+        Path.current = options.path
         return openWork()
             .flatMapError({ previous -> Result<Process, OpenError> in
                 openProject().mapError(OpenError.error(with: previous))
@@ -31,9 +33,17 @@ struct OpenAllCommand: CommandProtocol {
 
 struct OpenAllOptions: OptionsProtocol {
     let generatesProject: Bool
+    let path: Path
+    
+    static func create(generatesProject: Bool) -> (String) -> OpenAllOptions {
+        return { path in
+            OpenAllOptions(generatesProject: true, path: Path.current + path)
+        }
+    }
     
     static func evaluate(_ m: CommandMode) -> Result<OpenAllOptions, CommandantError<OpenError>> {
-        return OpenAllOptions.init
+        return OpenAllOptions.create
             <*> m <| Option(key: "generate-xcodeproj", defaultValue: true, usage: "Indicates wether Xcode projects shall be generated from `Package.swift` files.")
+            <*> m <| Argument<String>(defaultValue: ".", usage: "The path containing the project.")
     }
 }

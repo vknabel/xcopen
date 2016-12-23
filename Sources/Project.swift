@@ -9,14 +9,16 @@
 import Foundation
 import Commandant
 import Result
+import PathKit
 
 struct OpenProjectCommand: CommandProtocol {
-    typealias Options = NoOptions<OpenError>
+    typealias Options = PathOptions
     
     var verb: String = "proj"
     var function: String = "Opens the Xcode project."
     
-    func run(_ options: NoOptions<OpenError>) -> Result<(), OpenError> {
+    func run(_ options: Options) -> Result<(), OpenError> {
+        Path.current = options.path
         return openProject().map({ _ in () })
     }
 }
